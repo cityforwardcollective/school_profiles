@@ -25,5 +25,5 @@ if (!dir.exists(d)) {
   dir.create(d)
 }
 
-file.copy(from = of, to = glue("{d}/{of}"))
+file.copy(from = of, to = glue("{d}/{of}"), overwrite = TRUE)
 file.remove(of)

@@ -354,13 +354,21 @@ enr_by_subgroup
 #| fig-align: center
 #| out-width: 90%
 
+c$c <- c$c |> 
+  mutate(rating_fill = case_when(
+    meets == "No Rating" ~ cfc_colors[4],
+    meets == "Not Meeting Expectations" ~ cfc_colors[3],
+    meets == "Meeting Expectations" ~ cfc_colors[2],
+    meets == "Exceeding Expectations" ~ cfc_colors[1]
+  ))
+
 enr_by_rc <- c$c |> 
-  ggplot(aes(clean_rating, enr, fill = meets)) +
+  ggplot(aes(clean_rating, enr, fill = rating_fill)) +
   geom_col(width = .5) +
   geom_text(aes(label = comma(enr)), vjust = -.5, family = "Verdana") +
   scale_y_continuous(labels = comma) +
   scale_x_discrete(labels = function(x) str_wrap(x, 15)) +
-  scale_fill_manual(values = rev(cfc_colors[1:4])) +
+  scale_fill_identity() +
   coord_cartesian(clip = "off") +
   labs(title = "Enrollment by Report Card Rating",
        y = "Enrollment (2022-23 School Year)",
@@ -378,13 +386,13 @@ enr_by_rc <- c$c |>
 
 enr_by_quality <- c$c |> 
   filter(meets != "No Rating") |> 
-  ggplot(aes(meets, enr, fill = meets)) +
+  ggplot(aes(meets, enr, fill = rating_fill)) +
   geom_col(width = .5) +
   geom_text(aes(label = comma(stat(y), 1)), vjust = -.25, 
             stat = "summary", fun = sum, family = "Verdana") +
   scale_x_discrete(labels = function(x) str_wrap(x, 10)) +
   scale_y_continuous(labels = comma) +
-  scale_fill_manual(values = rev(cfc_colors[1:3])) +
+  scale_fill_identity() +
   coord_cartesian(clip = "off") +
   labs(title = "Enrollment by School Quality",
        y = "Enrollment (2022-23 School Year)",
