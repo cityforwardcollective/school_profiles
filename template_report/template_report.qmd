@@ -5,10 +5,10 @@ mainfont: Verdana
 sansfont: Georgia
 toc: true
 params:
-  district: 6
-  representative: "La Tonya Johnson"
-  honorific: "Senator"
-  house: "Senate"
+  district: "At-Large"
+  representative: "Missy Zombor"
+  honorific: "Director"
+  house: "MPS School Board"
 knitr:
   opts_chunk: 
     R.options:
@@ -104,11 +104,11 @@ make_data <- function(district) {
   
   
   schools_in_zip <- st_intersection(geo_schools, o) %>%
-    left_join(., enrollment %>%
-                filter(group_by_value == "All Students" & school_year == "2022-23") |> 
-                select(-school_year)) %>%
+    # left_join(., enrollment %>%
+    #             filter(group_by_value == "All Students" & school_year == "2022-23") |>
+    #             select(-school_year)) %>%
     left_join(., choice_counts %>% select(-school_name), by = c("school_year", "dpi_true_id")) %>%
-    mutate(clean_enr_20_21 = student_count,
+    mutate(clean_enr_20_21 = school_enrollment,
              # Use code below if choice counts for RPCP are manually fixed,
              # which they aren't as of 5/3/2023
       #        case_when(
@@ -176,28 +176,49 @@ make_data <- function(district) {
 
 \vspace{.25in}
 
+::: {#fig-1}
+
 ```{r}
 #| dev: png
+#| fig-dpi: 120
 #| fig-height: 5
-#| fig-cap: District shown in blue, Milwaukee city limits shown in orange.
+
 
 dist <- leges_sf |> 
   filter(house == params$house & district == params$district)
 
-cent <- mke |> 
-  st_transform(crs = st_crs(dist)) |> 
+ar <- (st_area(dist) / 1e6 * .0028) |> 
+  round(1)
+
+mke <- mke |> 
+  st_transform(crs = st_crs(dist)) 
+
+cent <- dist |> 
   st_centroid() |> 
   st_coordinates()
+
+bb <- st_bbox(st_buffer(dist, as.numeric(st_area(dist)) * .0001))
+
+in_mke <- st_intersects(st_as_sfc(bb), mke)[[1]]
+
+
+if (length(in_mke) > 0) {
+  cap <- "District boundaries shown in blue, Milwaukee city limits shown in orange."
+} else {
+  cap <- "District boundaries shown in blue."
+}
+
 
 leaflet(dist, options = leafletOptions(zoomSnap = .1)) |> 
   addMapboxTiles(style_id = "light-v11",
                  username = "mapbox", 
                  scaling_factor = "0.5x") |> 
   addPolygons(weight = 2) |> 
-  addPolygons(data = st_transform(mke, crs = st_crs(dist)),
-              color = cfc_orange, fillOpacity = .1,
+  addPolygons(data = mke,
+              color = cfc_orange, 
+              fillOpacity = .1,
               weight = 2) |> 
-  setView(lng = cent[[1]], lat = cent[[2]], zoom = 12.4)
+  fitBounds(bb[[1]], bb[[2]], bb[[3]], bb[[4]])
 
 # dist |> 
 #   ggplot() +
@@ -224,6 +245,9 @@ leaflet(dist, options = leafletOptions(zoomSnap = .1)) |>
 #        caption = "District boundaries reflect 2022 Districts")
 
 ```
+`r cap`
+
+:::
 
 \newpage
 # School Enrollment
@@ -238,7 +262,7 @@ mps <- c("Traditional Public", "Instrumentality Charter")
 
 cc <- c$clean_rated |> 
   group_by(broad_agency_type) |> 
-  summarise(enr = sum(clean_enr_20_21, na.rm = TRUE)) |> 
+  summarise(enr = sum(school_enrollment, na.rm = TRUE)) |> 
   mutate(broad_agency_type = case_when(
     broad_agency_type == "District Operated" ~ "Milwaukee Public Schools",
     broad_agency_type == "Independently Operated" ~ "Public Charter Schools",
