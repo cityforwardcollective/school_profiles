@@ -24,7 +24,7 @@ leges_sf |>
   mutate(name = glue("<a href='{base}/{house}/{name} - District {district}.pdf'",
                      "target='_blank'>{name}</a>")) |> 
   reactable(columns = list(
-    name = colDef(html = TRUE)
+    name = colDef(html = TRUE, searchable = TRUE)
   ))
 
 ```
