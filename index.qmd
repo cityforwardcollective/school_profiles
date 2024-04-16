@@ -1,0 +1,29 @@
+---
+title: "School Profiles"
+format: 
+  html:
+    echo: false
+    message: false
+    error: false
+    
+---
+
+```{r message=FALSE}
+library(reactable)
+library(tidyverse)
+library(sf)
+library(glue)
+
+base <- "https://cityforwardcollective.github.io/school_profiles/compiled_reports"
+
+leges_sf <- read_rds("data/electeds_with_sf_2024.rda")
+
+leges_sf |> 
+  as_tibble() |> 
+  select(district:party_aff) |> 
+  mutate(name = glue("<a href='{base}/Assembly/{name} - District {district}.pdf'>{name}</a>")) |> 
+  reactable(columns = list(
+    name = colDef(html = TRUE)
+  ))
+
+```

@@ -7,7 +7,7 @@ library(furrr)
 library(progressr)
 library(tictoc)
 
-leges_sf <- read_rds("data/electeds_with_sf_2023.rda")
+leges_sf <- read_rds("data/electeds_with_sf_2024.rda")
 
 
 make_reports <- function(i) {
@@ -38,7 +38,7 @@ make_reports <- function(i) {
 # make_reports(9)
 
 
-plan(multicore)
+# plan(multicore)
 
 this_fun <- function(i) {
   p <- progressor(steps = length(i))
@@ -75,7 +75,7 @@ this_fun <- function(i) {
 
 tic()
 with_progress({
-  this_fun(1:nrow(leges_sf))
+  this_fun(nrow(leges_sf):1)
 })
 toc()
 

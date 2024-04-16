@@ -264,12 +264,12 @@ cc <- c$clean_rated |>
   group_by(broad_agency_type) |> 
   summarise(enr = sum(school_enrollment, na.rm = TRUE)) |> 
   mutate(broad_agency_type = case_when(
-    broad_agency_type == "District Operated" ~ "Milwaukee Public Schools",
+    broad_agency_type == "District Operated" ~ "Traditional District Schools",
     broad_agency_type == "Independently Operated" ~ "Public Charter Schools",
     broad_agency_type == "Private" ~ "Private Schools"
   ),
   broad_agency_type = factor(broad_agency_type,
-                             levels = c("Milwaukee Public Schools",
+                             levels = c("Traditional District Schools",
                                         "Public Charter Schools",
                                         "Private Schools")))
 
