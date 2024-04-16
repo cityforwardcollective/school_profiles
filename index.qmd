@@ -25,6 +25,6 @@ leges_sf |>
                      "target='_blank'>{name}</a>")) |> 
   reactable(columns = list(
     name = colDef(html = TRUE, searchable = TRUE)
-  ))
+  ), searchable = TRUE)
 
 ```
