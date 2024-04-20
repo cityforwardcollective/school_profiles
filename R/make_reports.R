@@ -6,6 +6,7 @@ library(doParallel)
 library(furrr)
 library(progressr)
 library(tictoc)
+library(cityforwardcollective)
 
 leges_sf <- read_rds("data/electeds_with_sf_2024.rda")
 
@@ -18,21 +19,25 @@ make_reports <- function(i) {
   house <- this[["house"]] 
   
   of <- glue("{rep} - District {district}.pdf")
-  quarto_render("template_report/template_report.qmd", 
-                execute_params = list("representative" = rep,
-                                      "district" = district,
-                                      "honorific" = hon,
-                                      "house" = house), 
-                output_file = of)
-  
   d <- glue("compiled_reports/{house}")
   
   if (!dir.exists(d)) {
     dir.create(d)
   }
   
-  file.copy(from = of, to = glue("{d}/{of}"), overwrite = TRUE)
-  file.remove(of)
+  if (!file.exists(glue("{d}/{of}"))) {
+    quarto_render("template_report/template_report.qmd", 
+                  execute_params = list("representative" = rep,
+                                        "district" = district,
+                                        "honorific" = hon,
+                                        "house" = house), 
+                  output_file = of)
+    
+    
+    file.copy(from = of, to = glue("{d}/{of}"), overwrite = TRUE)
+    file.remove(of)
+  }
+  
 }
 
 # make_reports(9)
@@ -52,24 +57,31 @@ this_fun <- function(i) {
     house <- this[["house"]] 
     
     of <- glue("{rep} - District {district}.pdf")
-    quarto_render("template_report/template_report.qmd", 
-                  execute_params = list("representative" = rep,
-                                        "district" = district,
-                                        "honorific" = hon,
-                                        "house" = house), 
-                  output_file = of)
-    
     d <- glue("compiled_reports/{house}")
     
     if (!dir.exists(d)) {
       dir.create(d)
     }
     
-    file.copy(from = of, to = glue("{d}/{of}"), overwrite = TRUE)
-    file.remove(of)
+    if (!file.exists(glue("{d}/{of}"))) {
+      quarto_render("template_report/template_report.qmd", 
+                    execute_params = list("representative" = rep,
+                                          "district" = district,
+                                          "honorific" = hon,
+                                          "house" = house), 
+                    output_file = of)
+      
+      
+      
+      file.copy(from = of, to = glue("{d}/{of}"), overwrite = TRUE)
+      file.remove(of)
+    }
+      
   })
 }
 
+list.files("compiled_reports/Assembly") |> 
+  length()
 
 
 
@@ -79,9 +91,9 @@ with_progress({
 })
 toc()
 
-tic()
-with_progress({
-  other_fun()
-})
-toc()
+# tic()
+# with_progress({
+#   other_fun()
+# })
+# toc()
 
