@@ -50,7 +50,7 @@ rac <- read_rds("../data/rac_cl.rda")
 
 prof <- read_rds("../../000_data_temp/wi_all_school_prof_2023.rda")
 
-leges_sf <- read_rds("../data/electeds_with_sf_2023.rda")
+leges_sf <- read_rds("../data/electeds_with_sf_2024.rda")
 
 wip10 <- read_rds("../data/wi_10_cities.rda")
 mke <- st_read("../../shapefiles/Milwaukee/City Limits/citylimit.shp")
