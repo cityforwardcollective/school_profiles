@@ -324,7 +324,6 @@ enr_by_rc <- c$c |>
 
 
 enr_by_quality <- c$c |> 
-  filter(meets != "No Rating") |> 
   ggplot(aes(meets, enr, fill = rating_fill)) +
   geom_col(width = .5) +
   geom_text(aes(label = comma(stat(y), 1)), vjust = -.25, 
@@ -366,18 +365,17 @@ enr_by_quality
 ```
 
 \newpage
-## School Quality -- City of Milwaukee
-
-The following two graphs present data limited to Milwaukee schools.
 
 
 ```{r}
 #| fig-align: center
 #| out-width: 75%
+#| results: asis
 
 c_mke <- make_data(params$district, mke = TRUE)
 
-c_mke$c <- c_mke$c |> 
+if (nrow(c_mke$clean_rated) > 0 & (nrow(c_mke$clean_rated) != nrow(c$clean_rated))) {
+  c_mke$c <- c_mke$c |> 
   mutate(rating_fill = case_when(
     meets == "No Rating" ~ cfc_colors[4],
     meets == "Not Meeting Expectations" ~ cfc_colors[3],
@@ -385,69 +383,69 @@ c_mke$c <- c_mke$c |>
     meets == "Exceeding Expectations" ~ cfc_colors[1]
   ))
 
-enr_by_rc <- c_mke$c |> 
-  ggplot(aes(clean_rating, enr, fill = rating_fill)) +
-  geom_col(width = .5, drop = FALSE) +
-  geom_text(aes(label = comma(enr)), vjust = -.5, family = "Verdana") +
-  scale_y_continuous(labels = comma) +
-  scale_x_discrete(labels = function(x) str_wrap(x, 15), drop = FALSE) +
-  scale_fill_identity(drop = FALSE) +
-  coord_cartesian(clip = "off") +
-  labs(title = "Enrollment by Rating",
-       y = "Enrollment (2022-23 School Year)",
-       x = "CFC Rating (2022-23 School Year)") +
-  theme(legend.position = "none",
-        panel.grid.minor = element_blank(),
-        panel.grid.major.x = element_blank(),
-        axis.text.x = element_text(size = 7, lineheight = 1.1),
-        axis.title = element_text(size = 10),
-        plot.title.position = "plot",
-        plot.title = element_text(margin = margin(b = 20)),
-        plot.caption = element_text(hjust = 0),
-        plot.caption.position = "plot")
+  enr_by_rc <- c_mke$c |> 
+    ggplot(aes(clean_rating, enr, fill = rating_fill)) +
+    geom_col(width = .5, drop = FALSE) +
+    geom_text(aes(label = comma(enr)), vjust = -.5, family = "Verdana") +
+    scale_y_continuous(labels = comma) +
+    scale_x_discrete(labels = function(x) str_wrap(x, 15), drop = FALSE) +
+    scale_fill_identity(drop = FALSE) +
+    coord_cartesian(clip = "off") +
+    labs(title = "Enrollment by Rating",
+         y = "Enrollment (2022-23 School Year)",
+         x = "CFC Rating (2022-23 School Year)") +
+    theme(legend.position = "none",
+          panel.grid.minor = element_blank(),
+          panel.grid.major.x = element_blank(),
+          axis.text.x = element_text(size = 7, lineheight = 1.1),
+          axis.title = element_text(size = 10),
+          plot.title.position = "plot",
+          plot.title = element_text(margin = margin(b = 20)),
+          plot.caption = element_text(hjust = 0),
+          plot.caption.position = "plot")
+  
+  
+  enr_by_quality <- c_mke$c |> 
+    ggplot(aes(meets, enr, fill = rating_fill)) +
+    geom_col(width = .5) +
+    geom_text(aes(label = comma(stat(y), 1)), vjust = -.25, 
+              stat = "summary", fun = sum, family = "Verdana") +
+    scale_x_discrete(labels = function(x) str_wrap(x, 10),
+                     drop = FALSE) +
+    scale_y_continuous(labels = comma) +
+    scale_fill_identity(drop = FALSE) +
+    coord_cartesian(clip = "off") +
+    labs(title = "Enrollment by School Quality",
+         y = "Enrollment (2022-23 School Year)",
+         x = "CFC Rating (2022-23 School Year)",
+         caption = "Schools with no rating excluded here.") +
+    theme(legend.position = "none",
+          panel.grid.minor = element_blank(),
+          panel.grid.major.x = element_blank(),
+          axis.title.y = element_text(size = 8),
+          axis.title.x = element_text(margin = margin(t = 10, b = 10),
+                                      size = 8),
+          axis.text.x = element_text(size = 10, lineheight = 1.1),
+          plot.title.position = "plot",
+          plot.title = element_text(margin = margin(b = 20)),
+          plot.caption = element_text(hjust = 0, size = 8, color = "grey50"),
+          plot.caption.position = "plot")
+  
+  
+  cat(
+    "\\newpage ## School Quality -- City of Milwaukee\n  ",
+    "\nThe following two graphs present data limited to Milwaukee schools.\n",
+    "\\vspace{.25in}"
+  )
+  plot(enr_by_rc)
+  cat("\\vspace{.5in}")
+  plot(enr_by_quality)
+}
 
 
-enr_by_quality <- c_mke$c |> 
-  filter(meets != "No Rating") |> 
-  ggplot(aes(meets, enr, fill = rating_fill)) +
-  geom_col(width = .5) +
-  geom_text(aes(label = comma(stat(y), 1)), vjust = -.25, 
-            stat = "summary", fun = sum, family = "Verdana") +
-  scale_x_discrete(labels = function(x) str_wrap(x, 10),
-                   drop = FALSE) +
-  scale_y_continuous(labels = comma) +
-  scale_fill_identity(drop = FALSE) +
-  coord_cartesian(clip = "off") +
-  labs(title = "Enrollment by School Quality",
-       y = "Enrollment (2022-23 School Year)",
-       x = "CFC Rating (2022-23 School Year)",
-       caption = "Schools with no rating excluded here.") +
-  theme(legend.position = "none",
-        panel.grid.minor = element_blank(),
-        panel.grid.major.x = element_blank(),
-        axis.title.y = element_text(size = 8),
-        axis.title.x = element_text(margin = margin(t = 10, b = 10),
-                                    size = 8),
-        axis.text.x = element_text(size = 10, lineheight = 1.1),
-        plot.title.position = "plot",
-        plot.title = element_text(margin = margin(b = 20)),
-        plot.caption = element_text(hjust = 0, size = 8, color = "grey50"),
-        plot.caption.position = "plot")
-
-enr_by_rc
 
 ```
 
-\vspace{.5in}
-
-```{r}
-#| fig-align: center
-#| out-width: 75%
-#| fig-pos: "H"
-
-enr_by_quality
-
-```
 
 \newpage
 ## School Enrollment

@@ -5,7 +5,6 @@ format:
     echo: false
     message: false
     error: false
-    
 ---
 
 ```{r message=FALSE}
@@ -21,8 +20,8 @@ leges_sf <- read_rds("data/electeds_with_sf_2024.rda")
 leges_sf |> 
   as_tibble() |> 
   select(district:party_aff) |> 
-  mutate(name = glue("<a href='{base}/{house}/{name} - District {district}.pdf'",
-                     "target='_blank'>{name}</a>")) |> 
+  mutate(name = glue("<a href='{base}/{house}/{house} District {district}.pdf'",
+                     "target='_blank'>{house}: {district}</a>")) |> 
   reactable(columns = list(
     name = colDef(html = TRUE, searchable = TRUE)
   ), searchable = TRUE)
