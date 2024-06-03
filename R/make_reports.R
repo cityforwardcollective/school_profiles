@@ -57,7 +57,12 @@ this_fun <- function(i, overwrite = FALSE) {
     hon <- this[["title"]] 
     house <- this[["house"]] 
     
-    of <- glue("{rep} - District {district}.pdf")
+    if (house %in% c("Senate", "Assembly")) {
+      of <- glue("{house} District {district}.pdf")
+    } else {
+      of <- glue("{rep} - District {district}.pdf")
+    }
+     
     d <- glue("compiled_reports/{house}")
     
     if (!dir.exists(d)) {

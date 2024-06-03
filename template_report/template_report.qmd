@@ -5,10 +5,10 @@ mainfont: Verdana
 sansfont: Georgia
 toc: true
 params:
-  district: "At-Large"
-  representative: "Missy Zombor"
-  honorific: "Director"
-  house: "MPS School Board"
+  district: 4
+  representative: ""
+  honorific: "Senator"
+  house: "Senate"
 knitr:
   opts_chunk: 
     R.options:
@@ -54,44 +54,75 @@ leges_sf <- read_rds("../data/electeds_with_sf_2024.rda")
 
 wip10 <- read_rds("../data/wi_10_cities.rda")
 mke <- st_read("../../shapefiles/Milwaukee/City Limits/citylimit.shp")
+cfc_scored <- read_rds("../data/cfc_scored.rda")
+
+####################################################################
+# This was how I geocoded schools before adding the geocoded table #
+# to the wisconsink12 database.                                    #
+####################################################################
 
 # see R/fix_bad_ids.R for source of data object
-geo_schools <- read_rds("../data/geocoded_wi_schools_fixed.rda") %>%
-    mutate(dpi_true_id = case_when(
-      school_name == "21st Century Preparatory School" ~ "8010_8110",
-      school_name == "Kenosha High School of Technology" ~ "8029_8154",
-      TRUE ~ dpi_true_id)) |> 
-  # select(-student_count) %>%
-  st_as_sf(coords = c("long", "lat"), crs = 4326) %>%
-  left_join(schools %>%
-              filter(school_year == "2022-23") %>%
-              select(dpi_true_id, school_name, 
-                     broad_agency_type, accurate_agency_type)) %>%
-  left_join(., make_wi_rc(exclude_milwaukee = FALSE) %>%
-              filter(school_year == "2022-23") %>%
-              select(-c(school_year, school_name,
-                        broad_agency_type, accurate_agency_type,
-                        school_type))) %>%
-  # mutate(grade_band = case_when(dpi_true_id == "3619_0454" ~ "6-12",
-  #                               dpi_true_id == "3619_0215" ~ "6-8",
-  #                               dpi_true_id == "3619_0115" ~ "K-5",
-  #                               dpi_true_id == "3619_1141" ~ "K-5",
-  #                               dpi_true_id == "3619_0149" ~ "K-5",
-  #                               TRUE ~ grade_band)) |> 
-  st_transform(crs = st_crs(leges_sf)) #|> 
-  # filter(current_status != "CLOSED")
+# geo_schools <- read_rds("../data/geocoded_wi_schools_fixed.rda") %>%
+#     mutate(dpi_true_id = case_when(
+#       school_name == "21st Century Preparatory School" ~ "8010_8110",
+#       school_name == "Kenosha High School of Technology" ~ "8029_8154",
+#       TRUE ~ dpi_true_id)) |> 
+#   # select(-student_count) %>%
+#   st_as_sf(coords = c("long", "lat"), crs = 4326) %>%
+#   left_join(schools %>%
+#               filter(school_year == "2022-23") %>%
+#               select(dpi_true_id, broad_agency_type, accurate_agency_type)) %>%
+#   left_join(., make_wi_rc(exclude_milwaukee = FALSE) %>%
+#               filter(school_year == "2022-23") %>%
+#               select(-c(school_year, school_name,
+#                         broad_agency_type, accurate_agency_type,
+#                         school_type))) %>%
+#   left_join(cfc_scored) |> 
+#   mutate(dpi_score = overall_score,
+#          dpi_rating = overall_rating,
+#          overall_score = cfc_score,
+#          overall_rating = cfc_rating,
+#          overall_rating = replace_na(overall_rating, "No Rating"),
+#          clean_rating = overall_rating) |> 
+#   select(-c(cfc_score, cfc_rating)) |> 
+#   # mutate(grade_band = case_when(dpi_true_id == "3619_0454" ~ "6-12",
+#   #                               dpi_true_id == "3619_0215" ~ "6-8",
+#   #                               dpi_true_id == "3619_0115" ~ "K-5",
+#   #                               dpi_true_id == "3619_1141" ~ "K-5",
+#   #                               dpi_true_id == "3619_0149" ~ "K-5",
+#   #                               TRUE ~ grade_band)) |> 
+#   st_transform(crs = st_crs(leges_sf)) #|> 
+#   # filter(current_status != "CLOSED")
 
-geo_schools <- make_wi_rc(exclude_milwaukee = FALSE) |> 
-  filter(school_year == "2022-23") |> 
-  left_join(geocodes |> 
-              select(-school_year)) |> 
-  st_as_sf(coords = c("long", "lat"), crs = 4326) |> 
-  st_transform(crs = st_crs(leges_sf))
+
+
 
 # city_limits <- st_read("../../Shapefiles/Milwaukee/City Limits/citylimit.shp") |> 
 #   st_transform(crs = st_crs(leges_sf))
 
-make_data <- function(district) {
+make_data <- function(district, mke = FALSE) {
+  
+  if (!mke) {
+    start <- make_wi_rc(exclude_milwaukee = FALSE)
+  } else {
+    start <- make_mke_rc()
+  }
+  
+  geo_schools <- start |>  
+    filter(school_year == "2022-23") |> 
+    left_join(geocodes |> 
+                select(-school_year)) |> 
+    left_join(cfc_scored) |> 
+    mutate(dpi_score = overall_score,
+           dpi_rating = overall_rating,
+           overall_score = cfc_score,
+           overall_rating = cfc_rating,
+           overall_rating = replace_na(overall_rating, "No Rating"),
+           clean_rating = overall_rating) |>
+    select(-c(cfc_score, cfc_rating)) |>
+    st_as_sf(coords = c("long", "lat"), crs = 4326) |> 
+    st_transform(crs = st_crs(leges_sf))
+
   
   o <- leges_sf %>%
     filter(district == params$district & title == params$honorific)
@@ -172,7 +203,7 @@ make_data <- function(district) {
 ```
 
 \newpage
-# District `r params$district` Location
+## District `r params$district` Location
 
 \vspace{.25in}
 
@@ -250,13 +281,180 @@ leaflet(dist, options = leafletOptions(zoomSnap = .1)) |>
 :::
 
 \newpage
-# School Enrollment
+## School Quality -- Districtwide
+
+The ratings below represent CFC's high-quality school metric. This metric uses the same methodology that the regular Wisconsin School Report Card uses to calculate the Overall Score and Rating, except our metric assigns equal weight to Achievement and Growth.
+
+
+```{r}
+#| fig-align: center
+#| out-width: 75%
+
+c <- make_data(params$district)
+
+c$c <- c$c |> 
+  mutate(rating_fill = case_when(
+    meets == "No Rating" ~ cfc_colors[4],
+    meets == "Not Meeting Expectations" ~ cfc_colors[3],
+    meets == "Meeting Expectations" ~ cfc_colors[2],
+    meets == "Exceeding Expectations" ~ cfc_colors[1]
+  ))
+
+enr_by_rc <- c$c |> 
+  ggplot(aes(clean_rating, enr, fill = rating_fill)) +
+  geom_col(width = .5) +
+  geom_text(aes(label = comma(enr)), vjust = -.5, family = "Verdana") +
+  scale_y_continuous(labels = comma) +
+  scale_x_discrete(labels = function(x) str_wrap(x, 15),
+                   drop = FALSE) +
+  scale_fill_identity() +
+  coord_cartesian(clip = "off") +
+  labs(title = "Enrollment by Rating",
+       y = "Enrollment (2022-23 School Year)",
+       x = "CFC Rating (2022-23 School Year)") +
+  theme(legend.position = "none",
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        axis.text.x = element_text(size = 7, lineheight = 1.1),
+        axis.title = element_text(size = 10),
+        plot.title.position = "plot",
+        plot.title = element_text(margin = margin(b = 20)),
+        plot.caption = element_text(hjust = 0),
+        plot.caption.position = "plot")
+
+
+enr_by_quality <- c$c |> 
+  filter(meets != "No Rating") |> 
+  ggplot(aes(meets, enr, fill = rating_fill)) +
+  geom_col(width = .5) +
+  geom_text(aes(label = comma(stat(y), 1)), vjust = -.25, 
+            stat = "summary", fun = sum, family = "Verdana") +
+  scale_x_discrete(labels = function(x) str_wrap(x, 10),
+                   drop = FALSE) +
+  scale_y_continuous(labels = comma) +
+  scale_fill_identity() +
+  coord_cartesian(clip = "off") +
+  labs(title = "Enrollment by School Quality",
+       y = "Enrollment (2022-23 School Year)",
+       x = "CFC Rating (2022-23 School Year)",
+       caption = "Schools with no rating excluded here.") +
+  theme(legend.position = "none",
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        axis.title.y = element_text(size = 8),
+        axis.title.x = element_text(margin = margin(t = 10, b = 10),
+                                    size = 8),
+        axis.text.x = element_text(size = 10, lineheight = 1.1),
+        plot.title.position = "plot",
+        plot.title = element_text(margin = margin(b = 20)),
+        plot.caption = element_text(hjust = 0, size = 8, color = "grey50"),
+        plot.caption.position = "plot")
+
+enr_by_rc
+
+```
+
+\vspace{.5in}
+
+```{r}
+#| fig-align: center
+#| out-width: 75%
+#| fig-pos: "H"
+
+enr_by_quality
+
+```
+
+\newpage
+## School Quality -- City of Milwaukee
+
+The following two graphs present data limited to Milwaukee schools.
+
+
+```{r}
+#| fig-align: center
+#| out-width: 75%
+
+c_mke <- make_data(params$district, mke = TRUE)
+
+c_mke$c <- c_mke$c |> 
+  mutate(rating_fill = case_when(
+    meets == "No Rating" ~ cfc_colors[4],
+    meets == "Not Meeting Expectations" ~ cfc_colors[3],
+    meets == "Meeting Expectations" ~ cfc_colors[2],
+    meets == "Exceeding Expectations" ~ cfc_colors[1]
+  ))
+
+enr_by_rc <- c_mke$c |> 
+  ggplot(aes(clean_rating, enr, fill = rating_fill)) +
+  geom_col(width = .5, drop = FALSE) +
+  geom_text(aes(label = comma(enr)), vjust = -.5, family = "Verdana") +
+  scale_y_continuous(labels = comma) +
+  scale_x_discrete(labels = function(x) str_wrap(x, 15), drop = FALSE) +
+  scale_fill_identity(drop = FALSE) +
+  coord_cartesian(clip = "off") +
+  labs(title = "Enrollment by Rating",
+       y = "Enrollment (2022-23 School Year)",
+       x = "CFC Rating (2022-23 School Year)") +
+  theme(legend.position = "none",
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        axis.text.x = element_text(size = 7, lineheight = 1.1),
+        axis.title = element_text(size = 10),
+        plot.title.position = "plot",
+        plot.title = element_text(margin = margin(b = 20)),
+        plot.caption = element_text(hjust = 0),
+        plot.caption.position = "plot")
+
+
+enr_by_quality <- c_mke$c |> 
+  filter(meets != "No Rating") |> 
+  ggplot(aes(meets, enr, fill = rating_fill)) +
+  geom_col(width = .5) +
+  geom_text(aes(label = comma(stat(y), 1)), vjust = -.25, 
+            stat = "summary", fun = sum, family = "Verdana") +
+  scale_x_discrete(labels = function(x) str_wrap(x, 10),
+                   drop = FALSE) +
+  scale_y_continuous(labels = comma) +
+  scale_fill_identity(drop = FALSE) +
+  coord_cartesian(clip = "off") +
+  labs(title = "Enrollment by School Quality",
+       y = "Enrollment (2022-23 School Year)",
+       x = "CFC Rating (2022-23 School Year)",
+       caption = "Schools with no rating excluded here.") +
+  theme(legend.position = "none",
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        axis.title.y = element_text(size = 8),
+        axis.title.x = element_text(margin = margin(t = 10, b = 10),
+                                    size = 8),
+        axis.text.x = element_text(size = 10, lineheight = 1.1),
+        plot.title.position = "plot",
+        plot.title = element_text(margin = margin(b = 20)),
+        plot.caption = element_text(hjust = 0, size = 8, color = "grey50"),
+        plot.caption.position = "plot")
+
+enr_by_rc
+
+```
+
+\vspace{.5in}
+
+```{r}
+#| fig-align: center
+#| out-width: 75%
+#| fig-pos: "H"
+
+enr_by_quality
+
+```
+
+\newpage
+## School Enrollment
 
 ```{r}
 #| fig-align: center
 #| out-width: 90%
-
-c <- make_data(params$district)
 
 mps <- c("Traditional Public", "Instrumentality Charter")
 
@@ -305,6 +503,7 @@ enr_by_sector <- cc |>
         panel.grid.major.x = element_blank(),
         axis.text.x = element_text(size = 8),
         axis.title = element_text(size = 10),
+        axis.title.x = element_text(margin = margin(t = 10)),
         plot.title.position = "plot",
         plot.title = element_text(margin = margin(b = 20)),
         plot.caption = element_text(hjust = 0, size = 8, color = "grey50"),
@@ -371,86 +570,11 @@ enr_by_subgroup
 
 ```
 
-\newpage
-# School Quality
-
-```{r}
-#| fig-align: center
-#| out-width: 90%
-
-c$c <- c$c |> 
-  mutate(rating_fill = case_when(
-    meets == "No Rating" ~ cfc_colors[4],
-    meets == "Not Meeting Expectations" ~ cfc_colors[3],
-    meets == "Meeting Expectations" ~ cfc_colors[2],
-    meets == "Exceeding Expectations" ~ cfc_colors[1]
-  ))
-
-enr_by_rc <- c$c |> 
-  ggplot(aes(clean_rating, enr, fill = rating_fill)) +
-  geom_col(width = .5) +
-  geom_text(aes(label = comma(enr)), vjust = -.5, family = "Verdana") +
-  scale_y_continuous(labels = comma) +
-  scale_x_discrete(labels = function(x) str_wrap(x, 15)) +
-  scale_fill_identity() +
-  coord_cartesian(clip = "off") +
-  labs(title = "Enrollment by Report Card Rating",
-       y = "Enrollment (2022-23 School Year)",
-       x = "Report Card Rating (2022-23 School Year)") +
-  theme(legend.position = "none",
-        panel.grid.minor = element_blank(),
-        panel.grid.major.x = element_blank(),
-        axis.text.x = element_text(size = 7, lineheight = 1.1),
-        axis.title = element_text(size = 10),
-        plot.title.position = "plot",
-        plot.title = element_text(margin = margin(b = 20)),
-        plot.caption = element_text(hjust = 0),
-        plot.caption.position = "plot")
-
-
-enr_by_quality <- c$c |> 
-  filter(meets != "No Rating") |> 
-  ggplot(aes(meets, enr, fill = rating_fill)) +
-  geom_col(width = .5) +
-  geom_text(aes(label = comma(stat(y), 1)), vjust = -.25, 
-            stat = "summary", fun = sum, family = "Verdana") +
-  scale_x_discrete(labels = function(x) str_wrap(x, 10)) +
-  scale_y_continuous(labels = comma) +
-  scale_fill_identity() +
-  coord_cartesian(clip = "off") +
-  labs(title = "Enrollment by School Quality",
-       y = "Enrollment (2022-23 School Year)",
-       x = "Report Card Rating (2022-23 School Year)",
-       caption = "Schools with no rating excluded here.") +
-  theme(legend.position = "none",
-        panel.grid.minor = element_blank(),
-        panel.grid.major.x = element_blank(),
-        axis.title.y = element_text(size = 8),
-        axis.title.x = element_text(margin = margin(t = 10, b = 10),
-                                    size = 8),
-        plot.title.position = "plot",
-        plot.title = element_text(margin = margin(b = 20)),
-        plot.caption = element_text(hjust = 0, size = 8, color = "grey50"),
-        plot.caption.position = "plot")
-
-enr_by_rc
-
-```
-
-\vspace{.5in}
-
-```{r}
-#| fig-align: center
-#| out-width: 90%
-#| fig-pos: "H"
-
-enr_by_quality
-
-```
-
 
 \newpage
-# List of Schools in District `r params$district`
+## List of Schools in District `r params$district`
+
+The CFC Rating and the CFC Score columns in the table below represent CFC's high-quality school metric. This metric uses the same methodology that the regular Wisconsin School Report Card uses to calculate the Overall Score and Rating, except our metric assigns equal weight to Achievement and Growth.
 
 \renewcommand{\arraystretch}{1.5}
 
@@ -477,7 +601,8 @@ t <- c$clean_rated |>
     dpi_true_id %in% (make_mke_schools() |> 
       filter(school_year == "2022-23") |> 
       pull(dpi_true_id)), paste0(school_name, "*"), school_name
-  ))
+  ),
+    overall_score = label_number(.1)(overall_score))
 
 
 pp <- prof |> 
@@ -485,11 +610,21 @@ pp <- prof |>
   select(dpi_true_id,
          test_subject,
          perc) |> 
-  pivot_wider(names_from = test_subject, values_from = perc)
+  pivot_wider(names_from = test_subject, values_from = perc, names_prefix = "per_")
+
+pc <- prof |> 
+  filter(school_year == "2022-23" & pa) |> 
+  select(dpi_true_id,
+         test_subject,
+         total) |> 
+  pivot_wider(names_from = test_subject, values_from = total, names_prefix = "count_")
 
 tt <- left_join(t, pp) |> 
+  left_join(pc) |> 
   select(-dpi_true_id) |> 
-  mutate_at(c("ELA", "Mathematics"), label_percent(1))
+  mutate_at(c("per_ELA", "per_Mathematics"), label_percent(1)) |> 
+  select(1:9, "per_ELA", "count_ELA", 
+         "per_Mathematics", "count_Mathematics")
 
 
 
@@ -498,13 +633,16 @@ tt |>
   filter(!is.na(school_name)) |>
   select(-school_year) |> 
   kbl(booktabs = T, longtable = TRUE, caption = "School List with 2022-23 Data", 
-      align = c("l", "l", "c", "c", "c", "c", "c", "c"),
-      col.names = c("School", "Sector", "Grades", "Enrollment", "Overall Rating",
-                    "Score", "Achievement", "Growth", "ELA", "Math")) |> 
+      align = c("l", "l", "c", "c", "c", "c", "c", "c", "c", "c", "c", "c"),
+      col.names = c("School", "Sector", "Grades", "Enrollment", "CFC Rating",
+                    "CFC Score", "Achievement", "Growth", "%", "Count", "%", "Count")) |> 
   kable_styling(latex_options = c("striped", "HOLD_position", "repeat_header"), 
-                font_size = 7) |> 
+                font_size = 6) |> 
   column_spec(1, width = "9em") |> 
   column_spec(c(2,5), width = "7em") |> 
-  add_header_above(header = c(" " = 4, "Report Card" = 4, "Proficiency" = 2), bold = TRUE)
+  column_spec(6:8, width = "5em") |> 
+  column_spec(c(9:12), width = "2em") |> 
+  add_header_above(header = c(" " = 4, "Report Card" = 4, 
+                              "ELA Prof." = 2, "Math Prof." = 2), bold = TRUE)
 ```
 
