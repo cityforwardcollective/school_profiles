@@ -10,7 +10,23 @@ library(cityforwardcollective)
 
 leges_sf <- read_rds("data/electeds_with_sf_2024.rda")
 
+mke <- st_read("../shapefiles/Milwaukee/City Limits/citylimit.shp") |> 
+  st_transform(crs = st_crs(leges_sf))
 
+these_leges <- map_df(1:nrow(leges_sf), function(i) {
+  this <- leges_sf[i,]
+  
+  jo <- st_join(this, mke, left = FALSE)
+  
+  if (nrow(jo) > 0) {
+    over <- 1
+  } else {
+    over <- 0
+  }
+  
+  this |> 
+    mutate(overlaps = over)
+})
 
 # make_reports <- function(i) {
 #   this <- leges_sf[i,]
@@ -45,6 +61,8 @@ leges_sf <- read_rds("data/electeds_with_sf_2024.rda")
 
 
 # plan(multicore)
+
+leges_sf <- these_leges
 
 this_fun <- function(i, overwrite = FALSE) {
   p <- progressor(steps = length(i))
@@ -112,6 +130,8 @@ with_progress({
 })
 
 
+
+
 do_it <- function(i, overwrite = TRUE) {
   cat(crayon::cyan(glue::glue("Starting row {i}")), "\n")
   this <- leges_sf[i,]
@@ -167,6 +187,8 @@ do_it <- function(i, overwrite = TRUE) {
   
 }
 
-walk(1:nrow(leges_sf), do_it)
+walk(1:nrow(leges_sf |> 
+              filter(overlaps == 1)), 
+     do_it)
 
 

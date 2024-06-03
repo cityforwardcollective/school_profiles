@@ -5,10 +5,10 @@ mainfont: Verdana
 sansfont: Georgia
 toc: true
 params:
-  district: 4
+  district: 2
   representative: ""
-  honorific: "Senator"
-  house: "Senate"
+  honorific: "Director"
+  house: "MPS School Board"
 knitr:
   opts_chunk: 
     R.options:
@@ -120,6 +120,7 @@ make_data <- function(district, mke = FALSE) {
            overall_rating = replace_na(overall_rating, "No Rating"),
            clean_rating = overall_rating) |>
     select(-c(cfc_score, cfc_rating)) |>
+    filter(!is.na(lat)) |> 
     st_as_sf(coords = c("long", "lat"), crs = 4326) |> 
     st_transform(crs = st_crs(leges_sf))
 
@@ -434,7 +435,9 @@ if (nrow(c_mke$clean_rated) > 0 & (nrow(c_mke$clean_rated) != nrow(c$clean_rated
   
   cat(
     "\\newpage ## School Quality -- City of Milwaukee\n  ",
-    "\nThe following two graphs present data limited to Milwaukee schools.\n",
+    "\nThis section is included for districts that extend beyond Milwaukee ",
+    "Public School's boundaries to show this district's school quality when ",
+    "limited to Milwaukee schools.",
     "\\vspace{.25in}"
   )
   plot(enr_by_rc)
