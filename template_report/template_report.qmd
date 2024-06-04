@@ -1,6 +1,6 @@
 ---
 title: "`r glue::glue('{params$house} School Profiles')`"
-subtitle: "`r glue::glue('{params$honorific} {params$representative}--District {params$district}')`"
+subtitle: "`r glue::glue('{params$house} District {params$district}')`"
 mainfont: Verdana
 sansfont: Georgia
 toc: true
