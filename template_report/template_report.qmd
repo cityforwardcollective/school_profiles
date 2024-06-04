@@ -5,7 +5,7 @@ mainfont: Verdana
 sansfont: Georgia
 toc: true
 params:
-  district: 2
+  district: 5
   representative: ""
   honorific: "Director"
   house: "MPS School Board"
@@ -286,6 +286,7 @@ leaflet(dist, options = leafletOptions(zoomSnap = .1)) |>
 
 The ratings below represent CFC's high-quality school metric. This metric uses the same methodology that the regular Wisconsin School Report Card uses to calculate the Overall Score and Rating, except our metric assigns equal weight to Achievement and Growth.
 
+\vspace{.25in}
 
 ```{r}
 #| fig-align: center
@@ -455,7 +456,7 @@ if (nrow(c_mke$clean_rated) > 0 & (nrow(c_mke$clean_rated) != nrow(c$clean_rated
 
 ```{r}
 #| fig-align: center
-#| out-width: 90%
+#| out-width: 85%
 
 mps <- c("Traditional Public", "Instrumentality Charter")
 
@@ -489,10 +490,14 @@ if (!is.na(part)) {
 # sector enrollment
 
 enr_by_sector <- cc |> 
+  mutate(perc = enr / sum(enr),
+         lab = glue("{label_comma()(enr)}
+                    {label_percent()(perc)}")) |> 
   # filter(organisation_type != "State institution") |> 
   ggplot(aes(broad_agency_type, enr)) +
   geom_col(fill = cfc_darkblue, width = .5) +
-  geom_text(aes(label = comma(enr)), vjust = -.5, family = "Verdana") +
+  geom_text(aes(label = lab), lineheight = 1,
+            vjust = -.25, family = "Verdana") +
   scale_y_continuous(labels = comma) +
   scale_x_discrete(labels = function(x) str_wrap(x, 15)) +
   coord_cartesian(clip = "off") +
@@ -506,7 +511,7 @@ enr_by_sector <- cc |>
         axis.title = element_text(size = 10),
         axis.title.x = element_text(margin = margin(t = 10)),
         plot.title.position = "plot",
-        plot.title = element_text(margin = margin(b = 20)),
+        plot.title = element_text(margin = margin(b = 30)),
         plot.caption = element_text(hjust = 0, size = 8, color = "grey50"),
         plot.caption.position = "plot")
 
@@ -564,7 +569,7 @@ enr_by_sector
 
 ```{r}
 #| fig-align: center
-#| out-width: 90%
+#| out-width: 85%
 #| fig-pos: "H"
 
 enr_by_subgroup
