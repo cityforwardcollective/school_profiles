@@ -1,5 +1,4 @@
 ---
-title: "School Profiles"
 format: 
   html:
     echo: false
