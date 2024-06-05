@@ -21,6 +21,9 @@ this_theme <- function() {
   reactableTheme(
     searchInputStyle = list(
       width = "100%"
+    ),
+    style = list(
+      padding = "50px"
     )
   )
 }
