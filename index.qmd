@@ -23,7 +23,7 @@ this_theme <- function() {
       width = "100%"
     ),
     style = list(
-      padding = "50px"
+      padding = "10px"
     )
   )
 }
