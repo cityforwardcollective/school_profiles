@@ -1,6 +1,8 @@
 ---
 title: "`r glue::glue('{params$house} School Profiles')`"
-subtitle: "`r glue::glue('{params$house} District {params$district}')`"
+subtitle: |
+  | `r glue::glue('{params$house} District {params$district}')`
+  | `r glue::glue('Incumbent: {params$representative}')`
 mainfont: Verdana
 sansfont: Georgia
 toc: true
@@ -241,7 +243,7 @@ if (length(in_mke) > 0) {
 }
 
 
-leaflet(dist, options = leafletOptions(zoomSnap = .1)) |> 
+leaflet(dist, options = leafletOptions(zoomSnap = .1, zoomControl = FALSE)) |> 
   addMapboxTiles(style_id = "light-v11",
                  username = "mapbox", 
                  scaling_factor = "0.5x") |> 

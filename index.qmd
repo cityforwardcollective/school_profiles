@@ -17,6 +17,28 @@ base <- "https://cityforwardcollective.github.io/school_profiles/compiled_report
 
 leges_sf <- read_rds("data/electeds_with_sf_2024.rda")
 
+this_theme <- function() {
+  reactableTheme(
+    searchInputStyle = list(
+      width = "100%"
+    )
+  )
+}
+
+vacants <- function(value) {
+
+  if (value == "Vacant") {
+    args <- list(value, style = glue("color: {'grey90'}; font-weight: 700"))
+  } 
+  do.call(span, args)
+}
+
+col2hex <- function(x, alpha = FALSE) {
+  args <- as.data.frame(t(col2rgb(x, alpha = alpha)))
+  args <- c(args, list(names = x, maxColorValue = 255))
+  do.call(rgb, args)
+}
+
 leges_sf |> 
   as_tibble() |> 
   select(district:party_aff) |>
@@ -24,9 +46,29 @@ leges_sf |>
                          "target='_blank'>{house} District {district}</a>")) |> 
   select("Elected Body" = house,
          District = district,
+         Incumbent = name,
          `Report Link`) |> 
   reactable(columns = list(
-    `Report Link` = colDef(html = TRUE, searchable = TRUE, )
-  ), searchable = TRUE)
+    District = colDef(minWidth = 50),
+    Incumbent = colDef(
+      style = function(value) {
+        if (value == "Vacant") {
+          list(color = glue("{col2hex('grey60')}"), fontStyle = "italic")
+        } 
+        
+      }
+    ),
+    `Report Link` = colDef(html = TRUE, 
+                           style = list(fontSize = ".75rem"),
+                           minWidth = 125)
+  ), 
+  searchable = TRUE, 
+  highlight = TRUE, 
+  showPageSizeOptions = TRUE, 
+  language = reactableLang(
+    searchPlaceholder = "Search incumbent, elected body, or district"
+    ),
+  defaultColDef = colDef(align = "center"),
+  theme = this_theme())
 
 ```

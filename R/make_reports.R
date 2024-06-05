@@ -1,3 +1,5 @@
+# Note: leges_sf is made in the lege_profiles project
+
 library(tidyverse)
 library(quarto)
 library(glue)
