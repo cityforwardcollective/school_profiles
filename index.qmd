@@ -52,7 +52,7 @@ leges_sf |>
          District = district,
          Incumbent = name,
          `Report Link`) |> 
-  reactable(columns = list(
+  reactable(elementId = "myTable", columns = list(
     District = colDef(minWidth = 50),
     Incumbent = colDef(
       style = function(value) {
@@ -76,3 +76,20 @@ leges_sf |>
   theme = this_theme())
 
 ```
+
+```{js}
+sh = document.body.scrollHeight;
+console.log(sh);
+
+
+window.addEventListener('DOMContentLoaded', function(e) {
+  sh = document.body.scrollHeight;
+  console.log(sh);
+  const newDiv = document.createElement("div");
+  newDiv.className = "sh";
+  newDiv.id = sh;
+  document.body.appendChild(newDiv);
+} );
+```
+
+
