@@ -4,6 +4,7 @@ format:
     echo: false
     message: false
     error: false
+    backgroundcolor: transparent
 ---
 
 ```{r message=FALSE}
