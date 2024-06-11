@@ -42,6 +42,7 @@ library(glue)
 library(ggtext)
 library(mapboxapi)
 library(leaflet)
+library(marquee)
 
 
 font_add("Georgia", "/Library/Fonts/Georgia.ttf")
