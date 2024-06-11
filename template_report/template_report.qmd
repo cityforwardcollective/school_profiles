@@ -42,7 +42,6 @@ library(glue)
 library(ggtext)
 library(mapboxapi)
 library(leaflet)
-library(marquee)
 
 
 font_add("Georgia", "/Library/Fonts/Georgia.ttf")
@@ -494,13 +493,14 @@ if (!is.na(part)) {
 
 enr_by_sector <- cc |> 
   mutate(perc = enr / sum(enr),
-         lab = glue("{label_comma()(enr)}
-                    {label_percent()(perc)}")) |> 
+         lab = glue("**{label_comma()(enr)}**<br>
+                    <span style='font-size:8pt;'>({label_percent()(perc)})</span>")) |> 
   # filter(organisation_type != "State institution") |> 
   ggplot(aes(broad_agency_type, enr)) +
   geom_col(fill = cfc_darkblue, width = .5) +
-  geom_text(aes(label = lab), lineheight = 1,
-            vjust = -.25, family = "Verdana") +
+  geom_textbox(aes(label = lab), halign = 0.5,
+            family = "Verdana-Bold", vjust = -.01,
+            box.color = NA, fill = NA) +
   scale_y_continuous(labels = comma) +
   scale_x_discrete(labels = function(x) str_wrap(x, 15)) +
   coord_cartesian(clip = "off") +

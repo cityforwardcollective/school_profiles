@@ -1,15 +1,13 @@
 cc |> 
   mutate(perc = enr / sum(enr),
-         lab = glue("{**[label_comma()(enr)]**}\n
-                    ([label_percent()(perc)])",
-                .open = "[",
-                .close = "]")) |> 
+         lab = glue("**{label_comma()(enr)}**<br>
+                    <span style='font-size:8pt;'>({label_percent()(perc)})</span>")) |> 
   # filter(organisation_type != "State institution") |> 
   ggplot(aes(broad_agency_type, enr)) +
   geom_col(fill = cfc_darkblue, width = .5) +
-  geom_marquee(aes(label = lab)) +
-  # geom_text(aes(label = lab), lineheight = 1,
-  #           vjust = -.25, family = "Verdana") +
+  geom_textbox(aes(label = lab), halign = 0.5,
+            vjust = -.25, family = "Verdana-Bold",
+            fill = NA, box.size = 0) +
   scale_y_continuous(labels = comma) +
   scale_x_discrete(labels = function(x) str_wrap(x, 15)) +
   coord_cartesian(clip = "off") +
@@ -26,3 +24,4 @@ cc |>
         plot.title = element_text(margin = margin(b = 30)),
         plot.caption = element_text(hjust = 0, size = 8, color = "grey50"),
         plot.caption.position = "plot")
+
