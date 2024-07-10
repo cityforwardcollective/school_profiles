@@ -7,10 +7,10 @@ mainfont: Verdana
 sansfont: Georgia
 toc: true
 params:
-  district: 5
-  representative: ""
-  honorific: "Director"
-  house: "MPS School Board"
+  district: "City"
+  representative: "Cavalier Johnson"
+  honorific: "Mayor"
+  house: "City of Milwaukee"
 knitr:
   opts_chunk: 
     R.options:
