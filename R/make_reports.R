@@ -150,7 +150,11 @@ do_it <- function(i, overwrite = TRUE) {
   #   of <- glue("{District {district}.pdf")
   # }
   
-  of <- glue("{house} District {district}.pdf")
+  if (hon == "Mayor") {
+    of <- glue("{house}.pdf")
+  } else {
+    of <- glue("{house} District {district}.pdf")
+  }
   
   d <- glue("compiled_reports/{house}")
   
@@ -189,6 +193,6 @@ do_it <- function(i, overwrite = TRUE) {
   
 }
 
-walk(1:nrow(leges_sf), do_it)
+walk(1, do_it)
 
 

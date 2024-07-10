@@ -43,11 +43,16 @@ col2hex <- function(x, alpha = FALSE) {
   do.call(rgb, args)
 }
 
+
+
 leges_sf |> 
   as_tibble() |> 
-  select(house, district:party_aff) |>
-  mutate("Report Link" = glue("<a href='{base}/{house}/{house} District {district}.pdf'",
-                         "target='_blank'>{house} District {district}</a>")) |> 
+  # select(house, district:party_aff) |>
+  mutate("Report Link" = ifelse(title == "Mayor", 
+                                glue("<a href='{base}/{house}/{house}.pdf'",
+                         "target='_blank'>{house}</a>"),
+                         glue("<a href='{base}/{house}/{house} District {district}.pdf'",
+                         "target='_blank'>{house} District {district}</a>"))) |> 
   select("Elected Body" = house,
          District = district,
          Incumbent = name,
