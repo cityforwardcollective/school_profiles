@@ -4,6 +4,7 @@ format:
     echo: false
     message: false
     error: false
+    warning: false
     backgroundcolor: transparent
 ---
 
@@ -82,19 +83,6 @@ leges_sf |>
 
 ```
 
-```{js}
-sh = document.body.scrollHeight;
-console.log(sh);
 
-
-window.addEventListener('DOMContentLoaded', function(e) {
-  sh = document.body.scrollHeight;
-  console.log(sh);
-  const newDiv = document.createElement("div");
-  newDiv.className = "sh";
-  newDiv.id = sh;
-  document.body.appendChild(newDiv);
-} );
-```
 
 
