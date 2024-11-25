@@ -21,7 +21,7 @@ cfc_scored <- map2_df(c("sch_ach", "sch_growth", "sch_tgo", "sch_ot"),
         function(x, y) {
           make_wi_rc(exclude_milwaukee = FALSE) |> 
             ungroup() |> 
-            filter(school_year == "2022-23") |> 
+            filter(school_year == "2023-24") |> 
             select(school_year,
                    dpi_true_id,
                    value = x,

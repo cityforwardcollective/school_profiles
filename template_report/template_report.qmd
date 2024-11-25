@@ -3,6 +3,7 @@ title: "`r glue::glue('{params$house} School Profiles')`"
 subtitle: |
   | `r glue::glue('{params$house} District {params$district}')`
   | `r glue::glue('Incumbent: {params$representative}')`
+  | `r glue::glue('Last updated: {Sys.Date() |> format.Date("%B %Y")}')`
 mainfont: Verdana
 sansfont: Georgia
 toc: true
@@ -11,6 +12,7 @@ params:
   representative: "Cavalier Johnson"
   honorific: "Mayor"
   house: "City of Milwaukee"
+  school_year: "2023-24"
 knitr:
   opts_chunk: 
     R.options:
@@ -50,7 +52,9 @@ showtext_auto()
 
 rac <- read_rds("../data/rac_cl.rda")
 
-prof <- read_rds("../../000_data_temp/wi_all_school_prof_2023.rda")
+# this was 2022-23
+# prof <- read_rds("../../000_data_temp/wi_all_school_prof_2023.rda")
+prof <- read_rds("../data/wi_all_school_prof.rda")
 
 leges_sf <- read_rds("../data/electeds_with_sf_2024.rda")
 
@@ -111,7 +115,7 @@ make_data <- function(district, mke = FALSE) {
   }
   
   geo_schools <- start |>  
-    filter(school_year == "2022-23") |> 
+    filter(school_year == params$school_year) |> 
     left_join(geocodes |> 
                 select(-school_year)) |> 
     left_join(cfc_scored) |> 
@@ -314,8 +318,8 @@ enr_by_rc <- c$c |>
   scale_fill_identity() +
   coord_cartesian(clip = "off") +
   labs(title = "Enrollment by Rating",
-       y = "Enrollment (2022-23 School Year)",
-       x = "CFC Rating (2022-23 School Year)") +
+       y = glue("Enrollment ({params$school_year} School Year)"),
+       x = glue("CFC Rating ({params$school_year} School Year)")) +
   theme(legend.position = "none",
         panel.grid.minor = element_blank(),
         panel.grid.major.x = element_blank(),
@@ -338,8 +342,8 @@ enr_by_quality <- c$c |>
   scale_fill_identity() +
   coord_cartesian(clip = "off") +
   labs(title = "Enrollment by School Quality",
-       y = "Enrollment (2022-23 School Year)",
-       x = "CFC Rating (2022-23 School Year)",
+       y = glue("Enrollment ({params$school_year} School Year)"),
+       x = glue("CFC Rating ({params$school_year} School Year)"),
        caption = "Schools with no rating excluded here.") +
   theme(legend.position = "none",
         panel.grid.minor = element_blank(),
@@ -378,7 +382,9 @@ enr_by_quality
 
 c_mke <- make_data(params$district, mke = TRUE)
 
-if (nrow(c_mke$clean_rated) > 0 & (nrow(c_mke$clean_rated) != nrow(c$clean_rated))) {
+if (nrow(c_mke$clean_rated) > 0 & 
+    params$house != "City of Milwaukee" &
+    (nrow(c_mke$clean_rated) != nrow(c$clean_rated))) {
   c_mke$c <- c_mke$c |> 
   mutate(rating_fill = case_when(
     meets == "No Rating" ~ cfc_colors[4],
@@ -396,8 +402,8 @@ if (nrow(c_mke$clean_rated) > 0 & (nrow(c_mke$clean_rated) != nrow(c$clean_rated
     scale_fill_identity(drop = FALSE) +
     coord_cartesian(clip = "off") +
     labs(title = "Enrollment by Rating",
-         y = "Enrollment (2022-23 School Year)",
-         x = "CFC Rating (2022-23 School Year)") +
+         y = glue("Enrollment ({params$school_year} School Year)"),
+         x = glue("CFC Rating ({params$school_year} School Year)")) +
     theme(legend.position = "none",
           panel.grid.minor = element_blank(),
           panel.grid.major.x = element_blank(),
@@ -420,8 +426,8 @@ if (nrow(c_mke$clean_rated) > 0 & (nrow(c_mke$clean_rated) != nrow(c$clean_rated
     scale_fill_identity(drop = FALSE) +
     coord_cartesian(clip = "off") +
     labs(title = "Enrollment by School Quality",
-         y = "Enrollment (2022-23 School Year)",
-         x = "CFC Rating (2022-23 School Year)",
+         y = glue("Enrollment ({params$school_year} School Year)"),
+         x = glue("CFC Rating ({params$school_year} School Year)"),
          caption = "Schools with no rating excluded here.") +
     theme(legend.position = "none",
           panel.grid.minor = element_blank(),
@@ -505,7 +511,7 @@ enr_by_sector <- cc |>
   scale_x_discrete(labels = function(x) str_wrap(x, 15)) +
   coord_cartesian(clip = "off") +
   labs(title = "Enrollment by School Sector",
-       y = "Enrollment (2022-23 School Year)",
+       y = glue("Enrollment ({params$school_year} School Year)"),
        x = "",
        caption = cap) +
   theme(panel.grid.minor = element_blank(),
@@ -608,21 +614,21 @@ t <- c$clean_rated |>
   arrange(school_name) |> 
   mutate(school_name = ifelse(
     dpi_true_id %in% (make_mke_schools() |> 
-      filter(school_year == "2022-23") |> 
+      filter(school_year == params$school_year) |> 
       pull(dpi_true_id)), paste0(school_name, "*"), school_name
   ),
     overall_score = label_number(.1)(overall_score))
 
 
 pp <- prof |> 
-  filter(school_year == "2022-23" & pa) |> 
+  filter(school_year == params$school_year & pa) |> 
   select(dpi_true_id,
          test_subject,
          perc) |> 
   pivot_wider(names_from = test_subject, values_from = perc, names_prefix = "per_")
 
 pc <- prof |> 
-  filter(school_year == "2022-23" & pa) |> 
+  filter(school_year == params$school_year & pa) |> 
   select(dpi_true_id,
          test_subject,
          total) |> 
@@ -641,7 +647,8 @@ tt <- left_join(t, pp) |>
 tt |> 
   filter(!is.na(school_name)) |>
   select(-school_year) |> 
-  kbl(booktabs = T, longtable = TRUE, caption = "School List with 2022-23 Data", 
+  kbl(booktabs = T, longtable = TRUE, 
+      caption = glue("School List with {params$school_year} Data"), 
       align = c("l", "l", "c", "c", "c", "c", "c", "c", "c", "c", "c", "c"),
       col.names = c("School", "Sector", "Grades", "Enrollment", "CFC Rating",
                     "CFC Score", "Achievement", "Growth", "%", "Count", "%", "Count")) |> 

@@ -16,7 +16,7 @@ leges_sf |>
 mps <- c("Traditional Public", "Instrumentality Charter")
 
 mke_schools <- make_mke_schools() |> 
-  filter(school_year == "2022-23") |> 
+  filter(school_year == "2023-24") |> 
   left_join(enrollment |> 
               filter(group_by == "All Students")) |> 
   select(school_year,
