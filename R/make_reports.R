@@ -182,7 +182,7 @@ do_it <- function(i, overwrite = TRUE) {
   } else { # if file does exist
     quarto_render("template_report/template_report.qmd", 
                   execute_params = list("representative" = rep,
-                                        "district" = d_lab,
+                                        "d_lab" = d_lab,
                                         "district" = district,
                                         "honorific" = hon,
                                         "house" = house), 
@@ -197,6 +197,6 @@ do_it <- function(i, overwrite = TRUE) {
   
 }
 
-walk(1, do_it)
+walk(1:2, do_it)
 
 
