@@ -150,10 +150,12 @@ do_it <- function(i, overwrite = TRUE) {
   #   of <- glue("{District {district}.pdf")
   # }
   
-  if (hon == "Mayor") {
+  if (hon == "Mayor" | hon == "County Executive") {
     of <- glue("{house}.pdf")
+    d_lab <- hon
   } else {
     of <- glue("{house} District {district}.pdf")
+    d_lab <- glue("{house} District {district}")
   }
   
   d <- glue("compiled_reports/{house}")
@@ -166,6 +168,7 @@ do_it <- function(i, overwrite = TRUE) {
     if (!file.exists(glue("{d}/{of}"))) { # if the file does not exist
       quarto_render("template_report/template_report.qmd", 
                     execute_params = list("representative" = rep,
+                                          "d_lab" = d_lab,
                                           "district" = district,
                                           "honorific" = hon,
                                           "house" = house), 
@@ -179,6 +182,7 @@ do_it <- function(i, overwrite = TRUE) {
   } else { # if file does exist
     quarto_render("template_report/template_report.qmd", 
                   execute_params = list("representative" = rep,
+                                        "district" = d_lab,
                                         "district" = district,
                                         "honorific" = hon,
                                         "house" = house), 
@@ -193,6 +197,6 @@ do_it <- function(i, overwrite = TRUE) {
   
 }
 
-walk(2, do_it)
+walk(1, do_it)
 
 

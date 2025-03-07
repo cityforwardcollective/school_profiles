@@ -1,17 +1,18 @@
 ---
 title: "`r glue::glue('{params$house} School Profiles')`"
 subtitle: |
-  | `r glue::glue('{params$house} District {params$district}')`
+  | `r params$district`
   | `r glue::glue('Incumbent: {params$representative}')`
   | `r glue::glue('Last updated: {Sys.Date() |> format.Date("%B %Y")}')`
 mainfont: Verdana
 sansfont: Georgia
 toc: true
 params:
-  district: "City"
-  representative: "Cavalier Johnson"
-  honorific: "Mayor"
-  house: "City of Milwaukee"
+  d_lab: ""
+  district: "Milwaukee County"
+  representative: "David Crowley"
+  honorific: "County Executive"
+  house: "Milwaukee County"
   school_year: "2023-24"
 knitr:
   opts_chunk: 
@@ -44,6 +45,7 @@ library(glue)
 library(ggtext)
 library(mapboxapi)
 library(leaflet)
+library(mapview)
 
 
 font_add("Georgia", "/Library/Fonts/Georgia.ttf")
@@ -247,16 +249,18 @@ if (length(in_mke) > 0) {
 }
 
 
-leaflet(dist, options = leafletOptions(zoomSnap = .1, zoomControl = FALSE)) |> 
+m <- leaflet(dist, options = leafletOptions(zoomSnap = .1, zoomControl = FALSE)) |>
   addMapboxTiles(style_id = "light-v11",
-                 username = "mapbox", 
-                 scaling_factor = "0.5x") |> 
-  addPolygons(weight = 2) |> 
+                 username = "mapbox",
+                 scaling_factor = "0.5x") |>
+  addPolygons(weight = 2) |>
   addPolygons(data = mke,
-              color = cfc_orange, 
+              color = cfc_orange,
               fillOpacity = .1,
-              weight = 2) |> 
+              weight = 2) |>
   fitBounds(bb[[1]], bb[[2]], bb[[3]], bb[[4]])
+
+mapshot(m, file = "leaflet_map.png")
 
 # dist |> 
 #   ggplot() +
@@ -283,6 +287,9 @@ leaflet(dist, options = leafletOptions(zoomSnap = .1, zoomControl = FALSE)) |>
 #        caption = "District boundaries reflect 2022 Districts")
 
 ```
+
+![](leaflet_map.png)
+
 `r cap`
 
 :::
