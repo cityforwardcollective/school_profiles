@@ -193,6 +193,6 @@ do_it <- function(i, overwrite = TRUE) {
   
 }
 
-walk(2:nrow(these_leges), do_it)
+walk(2, do_it)
 
 
