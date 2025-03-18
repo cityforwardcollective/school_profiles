@@ -648,7 +648,14 @@ tt <- left_join(t, pp) |>
   select(1:9, "per_ELA", "count_ELA", 
          "per_Mathematics", "count_Mathematics")
 
+for_export <- tt |>
+            filter(!is.na(school_name))
+names(for_export) <- c("School", "Sector", "Grades", "Enrollment", "CFC Rating",
+                    "CFC Score", "Achievement", "Growth", "ELA %", "ELACount",
+                    "Math %", "Math Count")
 
+# write_csv(for_export,
+#           "../data/temp_table.csv")
 
 
 tt |> 
