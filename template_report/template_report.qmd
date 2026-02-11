@@ -13,7 +13,7 @@ params:
   representative: "David Crowley"
   honorific: "County Executive"
   house: "Milwaukee County"
-  school_year: "2023-24"
+  school_year: "2024-25"
 knitr:
   opts_chunk: 
     R.options:
@@ -56,13 +56,14 @@ rac <- read_rds("../data/rac_cl.rda")
 
 # this was 2022-23
 # prof <- read_rds("../../000_data_temp/wi_all_school_prof_2023.rda")
-prof <- read_rds("../data/wi_all_school_prof.rda")
+# prof <- read_rds("../../forward_exam_2020_21/data/wi_all_school_prof.rda")
+prof <- read_rds("../../forward_exam_2020_21/data/wi_all_school_test_results.rda")
 
 leges_sf <- read_rds("../data/electeds_with_sf_2024.rda")
 
 wip10 <- read_rds("../data/wi_10_cities.rda")
 mke <- st_read("../../shapefiles/Milwaukee/City Limits/citylimit.shp")
-cfc_scored <- read_rds("../data/cfc_scored.rda")
+cfc_scored <- read_rds("../../report_cards_2024_25/data/cfc_scored.rda")
 
 ####################################################################
 # This was how I geocoded schools before adding the geocoded table #
@@ -628,18 +629,18 @@ t <- c$clean_rated |>
 
 
 pp <- prof |> 
-  filter(school_year == params$school_year & pa) |> 
+  filter(school_year == params$school_year & pa == "pa") |> 
   select(dpi_true_id,
          test_subject,
          perc) |> 
   pivot_wider(names_from = test_subject, values_from = perc, names_prefix = "per_")
 
 pc <- prof |> 
-  filter(school_year == params$school_year & pa) |> 
+  filter(school_year == params$school_year & pa == "pa") |> 
   select(dpi_true_id,
          test_subject,
-         total) |> 
-  pivot_wider(names_from = test_subject, values_from = total, names_prefix = "count_")
+         total_count) |> 
+  pivot_wider(names_from = test_subject, values_from = total_count, names_prefix = "count_")
 
 tt <- left_join(t, pp) |> 
   left_join(pc) |> 
@@ -660,7 +661,7 @@ names(for_export) <- c("School", "Sector", "Grades", "Enrollment", "CFC Rating",
 
 tt |> 
   filter(!is.na(school_name)) |>
-  select(-school_year) |> 
+  # select(-school_year) |> 
   kbl(booktabs = T, longtable = TRUE, 
       caption = glue("School List with {params$school_year} Data"), 
       align = c("l", "l", "c", "c", "c", "c", "c", "c", "c", "c", "c", "c"),

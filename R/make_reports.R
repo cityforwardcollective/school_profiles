@@ -190,13 +190,13 @@ do_it <- function(i, overwrite = TRUE) {
     
     
     
-    file.copy(from = of, to = glue("{d}/{of}"), overwrite = TRUE)
-    file.remove(of)
+    file.copy(from = glue("template_report/{of}"), to = glue("{d}/{of}"), overwrite = TRUE)
+    file.remove(glue("template_report/{of}"))
   }
   
   
 }
 
-walk(1:2, do_it)
+walk(1:nrow(these_leges), do_it)
 
 
