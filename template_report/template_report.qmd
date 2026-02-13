@@ -310,10 +310,10 @@ c <- make_data(params$district)
 
 c$c <- c$c |> 
   mutate(rating_fill = case_when(
-    meets == "No Rating" ~ cfc_colors[4],
-    meets == "Not Meeting Expectations" ~ cfc_colors[3],
-    meets == "Meeting Expectations" ~ cfc_colors[2],
-    meets == "Exceeding Expectations" ~ cfc_colors[1]
+    meets == "No Rating" ~ cfc_sector_cols[4],
+    meets == "Not Meeting Expectations" ~ cfc_sector_cols[3],
+    meets == "Meeting Expectations" ~ cfc_sector_cols[2],
+    meets == "Exceeding Expectations" ~ cfc_sector_cols[1]
   ))
 
 enr_by_rc <- c$c |> 
@@ -395,10 +395,10 @@ if (nrow(c_mke$clean_rated) > 0 &
     (nrow(c_mke$clean_rated) != nrow(c$clean_rated))) {
   c_mke$c <- c_mke$c |> 
   mutate(rating_fill = case_when(
-    meets == "No Rating" ~ cfc_colors[4],
-    meets == "Not Meeting Expectations" ~ cfc_colors[3],
-    meets == "Meeting Expectations" ~ cfc_colors[2],
-    meets == "Exceeding Expectations" ~ cfc_colors[1]
+    meets == "No Rating" ~ cfc_sector_cols[4],
+    meets == "Not Meeting Expectations" ~ cfc_sector_cols[3],
+    meets == "Meeting Expectations" ~ cfc_sector_cols[2],
+    meets == "Exceeding Expectations" ~ cfc_sector_cols[1]
   ))
 
   enr_by_rc <- c_mke$c |> 
@@ -511,7 +511,7 @@ enr_by_sector <- cc |>
                     <span style='font-size:8pt;'>({label_percent()(perc)})</span>")) |> 
   # filter(organisation_type != "State institution") |> 
   ggplot(aes(broad_agency_type, enr)) +
-  geom_col(fill = cfc_darkblue, width = .5) +
+  geom_col(fill = cfc_dark_green, width = .5) +
   geom_textbox(aes(label = lab), halign = 0.5,
             family = "Verdana-Bold", vjust = -.01,
             box.color = NA, fill = NA) +
@@ -551,7 +551,7 @@ sub_enr <- c$clean_rated |>
 
 enr_by_subgroup <- sub_enr |> 
   ggplot(aes(group, perc)) +
-  geom_col(width = .5, fill = cfc_darkblue) +
+  geom_col(width = .5, fill = cfc_dark_green) +
   geom_text(aes(label = label_percent(1)(stat(y))), vjust = -.25,
             stat = "summary", fun = sum, family = "Verdana") +
   facet_wrap(~ group_by, scales = "free_x", strip.position = "bottom") +
