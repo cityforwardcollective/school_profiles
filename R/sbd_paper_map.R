@@ -45,7 +45,7 @@ map <- leaflet(sb_noal, options = leafletOptions(zoomSnap = .1, zoomControl = FA
                         direction = "center",
                         style = list(
                           "font-weight" = "bold", 
-                          "font-family" = "Verdana",
+                          "font-family" = "Open Sans",
                           "color" = "white",
                           "background-color" = cfc_darkblue, # Semi-transparent white background
                           "border" = glue("1px solid {cfc_darkblue}"),                 # Border color and size
@@ -54,7 +54,7 @@ map <- leaflet(sb_noal, options = leafletOptions(zoomSnap = .1, zoomControl = FA
                         textsize = "14px"
                       )) |> 
   addControl(
-    html = glue("<div style='font-family: Verdana;'>",
+    html = glue("<div style='font-family: Open Sans;'>",
                 "<h2 style='color: {cfc_darkblue};", 
                 "text-align: center;'>School Board Districts</h2>",
                 "<ul style='list-style-type: none;'>{reps_labs}</ul>",

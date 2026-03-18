@@ -43,7 +43,7 @@ map <- leaflet(this, options = leafletOptions(zoomSnap = .1, zoomControl = FALSE
                         direction = "center",
                         style = list(
                           "font-weight" = "bold", 
-                          "font-family" = "Verdana",
+                          "font-family" = "Open Sans",
                           "color" = "white",
                           "background-color" = cfc_darkblue, # Semi-transparent white background
                           "border" = glue("1px solid {cfc_darkblue}"),                 # Border color and size
@@ -52,7 +52,7 @@ map <- leaflet(this, options = leafletOptions(zoomSnap = .1, zoomControl = FALSE
                         textsize = "14px"
                       )) |> 
   addControl(
-    html = glue("<div style='font-family: Verdana;font-size: .75em'>",
+    html = glue("<div style='font-family: Open Sans;font-size: .75em'>",
                 "<h2 style='color: {cfc_darkblue};", 
                 "text-align: center;'>Common Council<br>Districts</h2>",
                 "<ul style='list-style-type: none;'>{reps_labs}</ul>",

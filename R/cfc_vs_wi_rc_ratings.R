@@ -2,7 +2,7 @@ library(tidyverse)
 library(wisconsink12)
 library(cityforwardcollective)
 
-cfc_scored <- read_rds("data/cfc_scored.rda")
+cfc_scored <- read_rds("../report_cards_2024_25/data/cfc_scored.rda")
 
 make_mke_schools() |>
   select(school_year, dpi_true_id, accurate_agency_type, school_name) |> 
@@ -31,7 +31,7 @@ make_mke_rc() |>
 these_cols <- c("#4ba6db", cfc_darkblue)
 
 make_mke_rc() |> 
-  filter(school_year == "2023-24") |> 
+  filter(school_year == "2024-25") |> 
   left_join(cfc_scored) |> 
   select(dpi_true_id,
          cfc_rating,

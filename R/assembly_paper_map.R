@@ -63,8 +63,9 @@ map <- leaflet(this, options = leafletOptions(zoomSnap = .1, zoomControl = FALSE
   addPolygons(data = mke,
               fill = NA,
               opacity = 1,
-              color = "white",
-              weight = 2) |>
+              color = "white", 
+              dashArray = "1, 2",
+              weight = 1) |>
   addLabelOnlyMarkers(data = sb_lab,
                       label = ~district,
                       labelOptions = labelOptions(
@@ -72,7 +73,7 @@ map <- leaflet(this, options = leafletOptions(zoomSnap = .1, zoomControl = FALSE
                         direction = "center",
                         style = list(
                           "font-weight" = "bold", 
-                          "font-family" = "Verdana",
+                          "font-family" = "Open Sans",
                           "color" = "white",
                           "background-color" = alpha(cfc_darkblue, .75),
                           "border" = glue("1px solid {cfc_darkblue}"),                
@@ -81,7 +82,7 @@ map <- leaflet(this, options = leafletOptions(zoomSnap = .1, zoomControl = FALSE
                         textsize = "10px"
                       )) |> 
   addControl(
-    html = glue("<div style='font-family: Verdana;font-size: .7em;'>",
+    html = glue("<div style='font-family: Open Sans;font-size: .7em;'>",
                 "<h2 style='color: {cfc_darkblue};", 
                 "text-align: center;'>Assembly Districts</h2>",
                 "<ul style='list-style-type: none;'>{reps_labs_top}</ul>",
@@ -89,7 +90,7 @@ map <- leaflet(this, options = leafletOptions(zoomSnap = .1, zoomControl = FALSE
     position = "topleft" # Position of the title
   ) |> 
   addControl(
-    html = glue("<div style='font-family: Verdana;font-size: .7em;'>",
+    html = glue("<div style='font-family: Open Sans;font-size: .7em;'>",
                 "<ul style='list-style-type: none;'>{reps_labs_bottom}</ul>",
                 "</div>"),
     position = "bottomleft",  # Position of the title

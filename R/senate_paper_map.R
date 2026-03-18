@@ -40,7 +40,8 @@ map <- leaflet(this, options = leafletOptions(zoomSnap = .1, zoomControl = FALSE
               fill = NA, 
               opacity = 1,
               color = "white", 
-              weight = 2) |>
+              dashArray = "1, 2",
+              weight = 1) |>
   addLabelOnlyMarkers(data = sb_lab,
                       label = ~district,
                       labelOptions = labelOptions(
@@ -48,7 +49,7 @@ map <- leaflet(this, options = leafletOptions(zoomSnap = .1, zoomControl = FALSE
                         direction = "center",
                         style = list(
                           "font-weight" = "bold", 
-                          "font-family" = "Verdana",
+                          "font-family" = "Open Sans",
                           "color" = "white",
                           "background-color" = cfc_darkblue, # Semi-transparent white background
                           "border" = glue("1px solid {cfc_darkblue}"),                 # Border color and size
@@ -57,7 +58,7 @@ map <- leaflet(this, options = leafletOptions(zoomSnap = .1, zoomControl = FALSE
                         textsize = "14px"
                       )) |> 
   addControl(
-    html = glue("<div style='font-family: Verdana;'>",
+    html = glue("<div style='font-family: Open Sans;'>",
                 "<h2 style='color: {cfc_darkblue};", 
                 "text-align: center;'>Senate Districts</h2>",
                 "<ul style='list-style-type: none;'>{reps_labs}</ul>",
