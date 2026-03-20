@@ -7,7 +7,8 @@ library(glue)
 library(htmlwidgets)
 library(webshot2)
 
-leges_sf <- read_rds("data/electeds_with_sf_2024.rda")
+leges_sf <- read_rds("data/electeds_with_sf_2024.rda") |> 
+  st_transform(crs = 4326)
 
 mke <- st_read("../shapefiles/Milwaukee/City Limits/citylimit.shp") |> 
   st_transform(crs = st_crs(leges_sf)) 
